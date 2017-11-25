@@ -10,7 +10,7 @@ layer {
     scale: 0.00392156862745
   }
   data_param {
-    source: train_file_path
+    source: "/home/styurin/DataSet/lmdb/train"
     batch_size: 32
     backend: LMDB
   }
@@ -27,7 +27,7 @@ layer {
     scale: 0.00392156862745
   }
   data_param {
-    source: val_file_path
+    source: "/home/styurin/DataSet/lmdb/val"
     batch_size: 64
     backend: LMDB
   }
