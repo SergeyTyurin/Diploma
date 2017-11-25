@@ -1,0 +1,15 @@
+train_net: "path_to_protoxt"
+test_iter: 100
+test_interval: 500
+test_initialization: false
+base_lr: 0.01
+display: 1000
+max_iter: 10000
+lr_policy: "inv"
+gamma: 0.0001
+power: 0.75
+momentum: 0.9
+weight_decay: 0.0005
+snapshot: 2000
+snapshot_prefix: "classifier"
+solver_mode: GPU
