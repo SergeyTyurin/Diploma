@@ -1,36 +1,8 @@
 layer {
   name: "data"
-  type: "Data"
+  type: "Input"
   top: "data"
-  top: "label"
-  include {
-    phase: TRAIN
-  }
-  transform_param {
-    scale: 0.00392156862745
-  }
-  data_param {
-    source: "/home/styurin/DataSet/lmdb/train"
-    batch_size: 32
-    backend: LMDB
-  }
-}
-layer {
-  name: "data"
-  type: "Data"
-  top: "data"
-  top: "label"
-  include {
-    phase: TEST
-  }
-  transform_param {
-    scale: 0.00392156862745
-  }
-  data_param {
-    source: "/home/styurin/DataSet/lmdb/val"
-    batch_size: 64
-    backend: LMDB
-  }
+  input_param { shape: { dim: 1 dim: 3 dim: 64 dim: 64 }}
 }
 layer {
   name: "conv1"
@@ -117,19 +89,8 @@ layer {
   }
 }
 layer {
-  name: "accuracy"
-  type: "Accuracy"
+  name: "prob"
+  type: "Softmax"
   bottom: "score"
-  bottom: "label"
-  top: "accuracy"
-  include {
-    phase: TEST
-  }
-}
-layer {
-  name: "loss"
-  type: "SoftmaxWithLoss"
-  bottom: "score"
-  bottom: "label"
-  top: "loss"
+  top: "prob"
 }
