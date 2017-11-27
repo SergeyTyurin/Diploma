@@ -15,7 +15,7 @@ try:
     bashfile = open("{0}/.bash_profile".format(os.getenv("HOME")),'r+')
     envDiplomaDIR = os.getcwd()
     envLMDBDataSetDIR = os.path.abspath(os.path.join(envDiplomaDIR,"..","DataSet","lmdb"))
-    envTestDataSetDIR = os.path.abspath(os.path.join(envDiplomaDIR, "..", "DataSet", "Destination","Test"))
+    envTestDataSetDIR = os.path.abspath(os.path.join(envDiplomaDIR, "..", "DataSet","Destination","Classification_Images","Test"))
     bash_data = bashfile.readlines()
     bash_data = writeEnvParam(bash_data,"DiplomaDIR",envDiplomaDIR)
     bash_data = writeEnvParam(bash_data,"LMDBDataSetDIR",envLMDBDataSetDIR)
