@@ -53,6 +53,7 @@ def TrainAccuracyLoss():
     imagesTrain = train_file.readlines()
     for line in imagesTrain:
         imagepath,label = line.strip('\n').split(' ')
+        net.blobs['data'].reshape(1,3,224,224)
         image = caffe.io.load_image(imagepath, color=False)
         net.blobs['data'].data[...] = transformer.preprocess('data', image)
         caffe.set_mode_cpu()
@@ -76,6 +77,7 @@ def ValAccuracyLoss():
     imagesTrain = train_file.readlines()
     for line in imagesTrain:
         imagepath,label = line.strip('\n').split(' ')
+        net.blobs['data'].reshape(1, 3, 224, 224)
         image = caffe.io.load_image(imagepath, color=False)
         net.blobs['data'].data[...] = transformer.preprocess('data', image)
         caffe.set_mode_cpu()
@@ -104,6 +106,7 @@ def TestAccuracyLossPrecisionRecall():
         for file in files:
             if(file.split('.')[1]=='png'):
                 image = caffe.io.load_image(os.path.join(root,file),color=False)
+                net.blobs['data'].reshape(1, 3, 224, 224)
                 net.blobs['data'].data[...] = transformer.preprocess('data',image)
                 caffe.set_mode_cpu()
                 start = time.clock()
@@ -112,7 +115,7 @@ def TestAccuracyLossPrecisionRecall():
                 output_prob = output['prob']
                 predict = output_prob.argmax()
                 label = int(root[-1])-1
-                classes[label][predict+1]+=1
+                # classes[label][predict+1]+=1
                 y_predict.append(predict)
                 y_true.append(label)
                 runtime_times.append(stop-start)
@@ -128,14 +131,14 @@ def TestAccuracyLossPrecisionRecall():
 
     report = classification_report(y_true,y_predict)
 
-    #print report
-    print "Avg Time = ",np.mean(runtime_times)
-
-    print "Test Accuracy = ", accuracy_score(y_true, y_predict)
-    print "Test Loss = ", zero_one_loss(y_true, y_predict)
-    #classifaction_report_csv(report)
+    print report
+    # print "Avg Time = ",np.mean(runtime_times)
+    #
+    # print "Test Accuracy = ", accuracy_score(y_true, y_predict)
+    # print "Test Loss = ", zero_one_loss(y_true, y_predict)
+    classifaction_report_csv(report)
 
 if __name__=='__main__':
-    TrainAccuracyLoss()
-    ValAccuracyLoss()
+    # TrainAccuracyLoss()
+    # ValAccuracyLoss()
     TestAccuracyLossPrecisionRecall()

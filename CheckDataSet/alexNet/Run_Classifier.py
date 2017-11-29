@@ -53,6 +53,7 @@ def TrainAccuracyLoss():
     imagesTrain = train_file.readlines()
     for line in imagesTrain:
         imagepath,label = line.strip('\n').split(' ')
+        net.blobs['data'].reshape(1, 3, 227, 227)
         image = caffe.io.load_image(imagepath, color=False)
         net.blobs['data'].data[...] = transformer.preprocess('data', image)
         caffe.set_mode_cpu()
@@ -61,6 +62,7 @@ def TrainAccuracyLoss():
         stop = time.clock()
         output_prob = output['prob']
         predict = output_prob.argmax()
+        print predict, label
         y_predict.append(predict)
         y_true.append(int(label))
         runtime_times.append(stop - start)
@@ -76,6 +78,7 @@ def ValAccuracyLoss():
     imagesTrain = train_file.readlines()
     for line in imagesTrain:
         imagepath,label = line.strip('\n').split(' ')
+        net.blobs['data'].reshape(1,3,227,227)
         image = caffe.io.load_image(imagepath, color=False)
         net.blobs['data'].data[...] = transformer.preprocess('data', image)
         caffe.set_mode_cpu()
@@ -84,6 +87,7 @@ def ValAccuracyLoss():
         stop = time.clock()
         output_prob = output['prob']
         predict = output_prob.argmax()
+        print predict, label
         y_predict.append(predict)
         y_true.append(int(label))
         runtime_times.append(stop - start)
@@ -103,6 +107,7 @@ def TestAccuracyLossPrecisionRecall():
             classes.append([int(d),0,0]) # Формируем пустые столбцы матрицы ошибок
         for file in files:
             if(file.split('.')[1]=='png'):
+                net.blobs['data'].reshape(1, 3, 227, 227)
                 image = caffe.io.load_image(os.path.join(root,file),color=False)
                 net.blobs['data'].data[...] = transformer.preprocess('data',image)
                 caffe.set_mode_cpu()
@@ -112,7 +117,8 @@ def TestAccuracyLossPrecisionRecall():
                 output_prob = output['prob']
                 predict = output_prob.argmax()
                 label = int(root[-1])-1
-                classes[label][predict+1]+=1
+                print predict, label
+                # classes[label][predict+1]+=1
                 y_predict.append(predict)
                 y_true.append(label)
                 runtime_times.append(stop-start)
@@ -128,14 +134,14 @@ def TestAccuracyLossPrecisionRecall():
 
     report = classification_report(y_true,y_predict)
 
-    #print report
-    print "Avg Time = ",np.mean(runtime_times)
-
-    print "Test Accuracy = ", accuracy_score(y_true, y_predict)
-    print "Test Loss = ", zero_one_loss(y_true, y_predict)
+    print report
+    # print "Avg Time = ",np.mean(runtime_times)
+    #
+    # print "Test Accuracy = ", accuracy_score(y_true, y_predict)
+    # print "Test Loss = ", zero_one_loss(y_true, y_predict)
     #classifaction_report_csv(report)
 
 if __name__=='__main__':
-    TrainAccuracyLoss()
-    ValAccuracyLoss()
+    # TrainAccuracyLoss()
+    # ValAccuracyLoss()
     TestAccuracyLossPrecisionRecall()
