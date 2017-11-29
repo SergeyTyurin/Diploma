@@ -1,4 +1,4 @@
-*/snapshots/*
+snapshots/
 .idea/
 .DS_Store
 *.save

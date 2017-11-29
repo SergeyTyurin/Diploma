@@ -10,10 +10,10 @@ layer {
   transform_param {
     mirror: true
     crop_size: 227
-    mean_file: "/home/vtyurin/Diploma/lmdb/256/mean.binaryproto"
+    mean_file: "/home/styurin/DataSet/227/mean.binaryproto"
   }
   data_param {
-    source: "/home/vtyurin/Diploma/lmdb/256/train_db"
+    source: "/home/styurin/DataSet/227/train_db"
     batch_size: 256
     backend: LMDB
   }
@@ -29,10 +29,10 @@ layer {
   transform_param {
     mirror: false
     crop_size: 227
-    mean_file: "/home/vtyurin/Diploma/lmdb/256/mean.binaryproto"
+    mean_file: "/home/styurin/DataSet/227/mean.binaryproto"
   }
   data_param {
-    source: "/home/vtyurin/Diploma/lmdb/256/val_db"
+    source: "/home/styurin/DataSet/227/val_db"
     batch_size: 32
     backend: LMDB
   }

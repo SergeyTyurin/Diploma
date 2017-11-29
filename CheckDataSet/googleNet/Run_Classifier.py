@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 filePath = os.path.dirname(__file__)
 deploy_proto = os.path.join(filePath,"var1","deploy.prototxt")
-weights = os.path.join(filePath,"var1","snapshots","classifier_iter_6000.caffemodel")
+weights = os.path.join(filePath,"var1","snapshots","_iter_6000.caffemodel")
 net = caffe.Net(deploy_proto, weights,caffe.TEST)
 
 transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
@@ -37,7 +37,7 @@ for root,dirs,files in os.walk(imagesTest):
             output = net.forward()
             stop = time.clock()
             output_prob = output['prob']
-            predict = output_prob.argmax()
+            predict = output_prob[:2].argmax()
             label = int(root[-1])-1
             print(predict,label)
             classes[label][predict+1]+=1

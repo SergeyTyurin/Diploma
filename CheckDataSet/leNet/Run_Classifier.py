@@ -2,15 +2,15 @@
 import caffe
 import os
 from sklearn.metrics import precision_recall_fscore_support
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, accuracy_score, zero_one_loss
 import numpy as np
 import pandas as pd
 import time
 import matplotlib.pyplot as plt
 
 filePath = os.path.dirname(__file__)
-deploy_proto = os.path.join(filePath,"var1","deploy.prototxt")
-weights = os.path.join(filePath,"var1","snapshots","classifier_iter_6000.caffemodel")
+deploy_proto = os.path.join(filePath,"var1","lenet.prototxt")
+weights = os.path.join(filePath,"var1","snapshots","snapshots_iter_2000.caffemodel")
 net = caffe.Net(deploy_proto, weights,caffe.TEST)
 
 transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
@@ -29,7 +29,7 @@ for root,dirs,files in os.walk(imagesTest):
         classes.append([int(d),0,0]) # Формируем пустые столбцы матрицы ошибок
     for file in files:
         if(file.split('.')[1]=='png'):
-            print os.path.join(root,file)
+            #print os.path.join(root,file)
             image = caffe.io.load_image(os.path.join(root,file),color=False)
             net.blobs['data'].data[...] = transformer.preprocess('data',image)
             caffe.set_mode_cpu()
@@ -39,7 +39,7 @@ for root,dirs,files in os.walk(imagesTest):
             output_prob = output['prob']
             predict = output_prob.argmax()
             label = int(root[-1])-1
-            print(predict,label)
+            #print(predict,label)
             classes[label][predict+1]+=1
             y_predict.append(predict)
             y_true.append(label)
@@ -53,6 +53,9 @@ precision = np.append(precision,np.mean(precision))
 recall = np.append(recall,np.mean(recall))
 f1_score = np.append(f1_score,np.mean(f1_score))
 support = np.append(support,np.sum(support))
+
+# accuracy = accuracy_score(y_true,y_predict)
+# log_loss = zero_one_loss(y_true,y_predict)
 
 # print precision
 # print recall
@@ -89,6 +92,9 @@ report = classification_report(y_true,y_predict)
 
 print report
 print np.mean(runtime_times)
+# print accuracy
+# print log_loss
+
 #classifaction_report_csv(report)
 
 
