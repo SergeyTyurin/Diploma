@@ -46,9 +46,15 @@ layer {
   }
 }
 layer {
+  name: "sigmoid1"
+  bottom: "conv1"
+  top: "sigmoid1"
+  type: "Sigmoid"
+}
+layer {
   name: "pool1"
   type: "Pooling"
-  bottom: "conv1"
+  bottom: "sigmoid1"
   top: "pool1"
   pooling_param {
     pool: MAX
@@ -70,15 +76,15 @@ layer {
   }
 }
 layer {
-  name: "relu2"
-  type: "ReLU"
+  name: "sigmoid2"
   bottom: "conv2"
-  top: "conv2"
+  top: "sigmoid2"
+  type: "Sigmoid"
 }
 layer {
   name: "pool2"
   type: "Pooling"
-  bottom: "conv2"
+  bottom: "sigmoid2"
   top: "pool2"
   pooling_param {
     pool: MAX
@@ -97,12 +103,6 @@ layer {
       type: "xavier"
     }
   }
-}
-layer {
-  name: "relu3"
-  type: "ReLU"
-  bottom: "fc1"
-  top: "fc1"
 }
 layer {
   name: "score"
