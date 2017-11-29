@@ -1,4 +1,4 @@
-net: "/home/vtyurin/Diploma/CheckDataSet/googleNet/train_val_1.prototxt"
+net: "train_val_1.prototxt"
 test_iter: 100
 test_interval: 500
 test_initialization: false
@@ -12,5 +12,5 @@ max_iter: 10000
 momentum: 0.9
 weight_decay: 0.0002
 snapshot: 2000
-snapshot_prefix: "/home/vtyurin/Diploma/CheckDataSet/googleNet/snapshots/"
+snapshot_prefix: "snapshots/styurin_googlenet"
 solver_mode: GPU
