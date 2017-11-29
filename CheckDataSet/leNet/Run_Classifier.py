@@ -2,14 +2,14 @@
 import caffe
 import os
 from sklearn.metrics import precision_recall_fscore_support
-from sklearn.metrics import classification_report, accuracy_score, zero_one_loss
+from sklearn.metrics import classification_report, accuracy_score, zero_one_loss,log_loss,hamming_loss,label_ranking_loss
 import numpy as np
 import pandas as pd
 import time
 
 filePath = os.path.dirname(__file__)
 deploy_proto = os.path.join(filePath,"var1","lenet.prototxt")
-weights = os.path.join(filePath,"var1","snapshots","snapshots_iter_2000.caffemodel")
+weights = os.path.join(filePath,"var1","snapshots","styurin_lenet_iter_10000.caffemodel")
 net = caffe.Net(deploy_proto, weights,caffe.TEST)
 
 transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
@@ -85,40 +85,45 @@ def ValAccuracyLoss():
         output = net.forward()
         stop = time.clock()
         output_prob = output['prob']
-        predict = output_prob.argmax()
+        predict = output_prob
+        print predict
         y_predict.append(predict)
         y_true.append(int(label))
+        # print predict,label
         runtime_times.append(stop - start)
     print "Val Accuracy = ", accuracy_score(y_true, y_predict)
-    print "Val Loss = ", zero_one_loss(y_true, y_predict)
+    print "Val Loss = ", loss(y_true, y_predict)
+
+def loss(predict, true):
+    m_loss=0;
+    for p,t in zip(predict,true):
+        m_loss+=(p-t)*(p-t)
+    m_loss*=0.5
+    return m_loss
 
 def TestAccuracyLossPrecisionRecall():
-    imagesTest = os.getenv("TestDataSetDIR")
-
-    classes = []  # матрица ошибок (TP, FP, TN, FN)
     y_predict = []  # предсказанные значения
     y_true = []  # эталонные значения (labels)
     runtime_times = []
 
-    for root,dirs,files in os.walk(imagesTest):
-        for d in dirs:
-            classes.append([int(d),0,0]) # Формируем пустые столбцы матрицы ошибок
-        for file in files:
-            if(file.split('.')[1]=='png'):
-                net.blobs['data'].reshape(1, 1, 28, 28)
-                image = caffe.io.load_image(os.path.join(root,file),color=False)
-                net.blobs['data'].data[...] = transformer.preprocess('data',image)
-                caffe.set_mode_cpu()
-                start = time.clock()
-                output = net.forward()
-                stop = time.clock()
-                output_prob = output['prob']
-                predict = output_prob.argmax()
-                label = int(root[-1])-1
-                # classes[label][predict+1]+=1
-                y_predict.append(predict)
-                y_true.append(label)
-                runtime_times.append(stop-start)
+    train_file = open('mactest.txt', 'r')
+    imagesTrain = train_file.readlines()
+    for line in imagesTrain:
+        imagepath, label = line.strip('\n').split(' ')
+        net.blobs['data'].reshape(1, 1, 28, 28)
+        image = caffe.io.load_image(imagepath, color=False)
+        net.blobs['data'].data[...] = transformer.preprocess('data', image)
+        caffe.set_mode_cpu()
+        start = time.clock()
+        output = net.forward()
+        stop = time.clock()
+        output_prob = output['prob']
+        top_inds=output_prob.argsort()
+        print(output_prob[top_inds])
+        predict = output_prob.argmax()
+        y_predict.append(predict)
+        y_true.append(int(label))
+        runtime_times.append(stop - start)
 
     # print classes
 
@@ -129,21 +134,16 @@ def TestAccuracyLossPrecisionRecall():
     f1_score = np.append(f1_score,np.mean(f1_score))
     support = np.append(support,np.sum(support))
 
-    print precision
-    print recall
-    print f1_score
-    print support
-
     report = classification_report(y_true,y_predict)
 
     print report
-    # print "Avg Time = ",np.mean(runtime_times)
+    print "Avg Time = ",np.mean(runtime_times)
     #
-    # print "Test Accuracy = ", accuracy_score(y_true, y_predict)
-    # print "Test Loss = ", zero_one_loss(y_true, y_predict)
+    print "Test Accuracy = ", accuracy_score(y_true, y_predict)
+    print "Test Loss = ", zero_one_loss(y_true, y_predict)
     #classifaction_report_csv(report)
 
 if __name__=='__main__':
     # TrainAccuracyLoss()
-    # ValAccuracyLoss()
-    TestAccuracyLossPrecisionRecall()
+    ValAccuracyLoss()
+    # TestAccuracyLossPrecisionRecall()

@@ -42,7 +42,7 @@ grep "Test" $1/$2 | grep -o "Iteration \d*" | grep -o "\d\d*" > $VAL/Val_iterati
 grep "Test" $1/$2 | grep -o "loss = [0-9]\.[0-9]*.*" | grep -o "[0-9]\.[0-9]*.*" > $VAL/Val_loss.txt
 grep "Test" $1/$2 | grep -o "accuracy = [0-9]\.[0-9]*.*" | grep -o "[0-9]\.[0-9]*.*" > $VAL/Val_acc.txt
 
-~/Diploma/env/bin/python Create_CSV.py --train_csv_file $TRAIN/train.csv\
+~/myproject/venv/bin/python Create_CSV.py --train_csv_file $TRAIN/train.csv\
                                        --val_csv_file $VAL/val.csv\
                                        --train_iterations_file $TRAIN/Train_iterations.txt\
                                        --train_loss_file $TRAIN/Train_loss.txt\

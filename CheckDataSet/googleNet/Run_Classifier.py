@@ -9,7 +9,7 @@ import time
 
 filePath = os.path.dirname(__file__)
 deploy_proto = os.path.join(filePath,"var1","deploy.prototxt")
-weights = os.path.join(filePath,"var1","snapshots","_iter_6000.caffemodel")
+weights = os.path.join(filePath,"var1","snapshots","styurin_googlenet_iter_10000.caffemodel")
 net = caffe.Net(deploy_proto, weights,caffe.TEST)
 
 transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
@@ -53,8 +53,8 @@ def TrainAccuracyLoss():
     imagesTrain = train_file.readlines()
     for line in imagesTrain:
         imagepath,label = line.strip('\n').split(' ')
-        net.blobs['data'].reshape(1,3,224,224)
-        image = caffe.io.load_image(imagepath, color=False)
+        #net.blobs['data'].reshape(1,3,224,224)
+        image = caffe.io.load_image(imagepath)
         net.blobs['data'].data[...] = transformer.preprocess('data', image)
         caffe.set_mode_cpu()
         start = time.clock()
@@ -77,8 +77,8 @@ def ValAccuracyLoss():
     imagesTrain = train_file.readlines()
     for line in imagesTrain:
         imagepath,label = line.strip('\n').split(' ')
-        net.blobs['data'].reshape(1, 3, 224, 224)
-        image = caffe.io.load_image(imagepath, color=False)
+        #net.blobs['data'].reshape(1, 3, 224, 224)
+        image = caffe.io.load_image(imagepath)
         net.blobs['data'].data[...] = transformer.preprocess('data', image)
         caffe.set_mode_cpu()
         start = time.clock()
@@ -105,7 +105,7 @@ def TestAccuracyLossPrecisionRecall():
             classes.append([int(d),0,0]) # Формируем пустые столбцы матрицы ошибок
         for file in files:
             if(file.split('.')[1]=='png'):
-                image = caffe.io.load_image(os.path.join(root,file),color=False)
+                image = caffe.io.load_image(os.path.join(root,file))
                 net.blobs['data'].reshape(1, 3, 224, 224)
                 net.blobs['data'].data[...] = transformer.preprocess('data',image)
                 caffe.set_mode_cpu()

@@ -46,7 +46,7 @@ grep "Test" $1/$2 | grep -o "loss2/top-1 = [0-9]\.[0-9]*.*" | grep -o "[0-9]\.[0
 grep "Test" $1/$2 | grep -o "loss3/loss3 = [0-9]\.[0-9]*.*" | grep -o "[0-9]\.[0-9]*.*" > $VAL/Val_loss3.txt
 grep "Test" $1/$2 | grep -o "loss3/top-1 = [0-9]\.[0-9]*.*" | grep -o "[0-9]\.[0-9]*.*" > $VAL/Val_acc3.txt
 
-~/Diploma/env/bin/python Create_CSV.py --train_csv_file $TRAIN/train.csv\
+~/myproject/venv/bin/python Create_CSV.py --train_csv_file $TRAIN/train.csv\
                                        --val_csv_file $VAL/val.csv\
                                        --train_iterations_file $TRAIN/Train_iterations.txt\
                                        --train_loss_file $TRAIN/Train_loss.txt\
