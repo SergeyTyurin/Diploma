@@ -10,7 +10,7 @@ import math
 
 filePath = os.path.dirname(__file__)
 deploy_proto = os.path.join(filePath,"var1","deploy.prototxt")
-weights = os.path.join(filePath,"var1","snapshots","snapshots_iter_3000.caffemodel")
+weights = os.path.join(filePath,"var1","snapshots","styurin_alexnet_iter_4000.caffemodel")
 net = caffe.Net(deploy_proto, weights,caffe.TEST)
 
 transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
@@ -72,7 +72,7 @@ def TrainAccuracyLoss():
         stop = time.clock()
         output_prob = output['prob']
         predict = output_prob.argmax()
-        predict_float = max(output_prob[0][:2])
+        predict_float = max(output_prob[0][:3])
         y_predict.append(predict)
         y_true.append(int(label))
         y_predict_float.append(predict_float)
@@ -100,7 +100,7 @@ def ValAccuracyLoss():
         stop = time.clock()
         output_prob = output['prob']
         predict = output_prob.argmax()
-        predict_float = max(output_prob[0][:2])
+        predict_float = max(output_prob[0][:3])
         y_predict.append(predict)
         y_true.append(int(label))
         y_predict_float.append(predict_float)
@@ -111,7 +111,7 @@ def ValAccuracyLoss():
 
 def TestAccuracyLossPrecisionRecall():
     imagesTest = os.getenv("TestDataSetDIR")
-
+    imagesTest = "/Users/sergeytyurin/Desktop/Datasets/Classification_Images_1"
     classes = []  # матрица ошибок (TP, FP, TN, FN)
     y_predict = []  # предсказанные значения
     y_predict_float = []
@@ -132,7 +132,7 @@ def TestAccuracyLossPrecisionRecall():
                 stop = time.clock()
                 output_prob = output['prob']
                 predict = output_prob.argmax()
-                predict_float = max(output_prob[0][:2])
+                predict_float = max(output_prob[0][:3])
                 label = int(root[-1])-1
                 # classes[label][predict+1]+=1
                 y_predict.append(predict)
@@ -151,8 +151,8 @@ def TestAccuracyLossPrecisionRecall():
 
     report = classification_report(y_true,y_predict)
 
-    #print report
-    # print "Avg Time = ",np.mean(runtime_times)
+    print report
+    print "Avg Time = ",np.mean(runtime_times)
 
     print "Test Accuracy = ", accuracy_score(y_true, y_predict)
     print "Test Loss = ", zero_one_loss(y_true, y_predict)

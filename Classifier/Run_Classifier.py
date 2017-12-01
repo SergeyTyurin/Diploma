@@ -9,8 +9,8 @@ import time
 import math
 
 filePath = os.path.dirname(__file__)
-deploy_proto = os.path.join(filePath,"var1","new_deploy.prototxt")
-weights = os.path.join(filePath,"var1","snapshots","tut_classifier_iter_2000.caffemodel")
+deploy_proto = os.path.join(filePath,"var1","deploy.prototxt")
+weights = os.path.join(filePath,"var1","snapshots","styurin_classifier_iter_2000.caffemodel")
 net = caffe.Net(deploy_proto, weights,caffe.TEST)
 
 transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
@@ -18,8 +18,6 @@ transformer.set_transpose('data', (2,0,1))  # move image channels to outermost d
 # transformer.set_raw_scale('data', 255)      # rescale from [0, 1] to [0, 255]
 
 imagesTest = os.getenv("TestDataSetDIR")
-caffe.set_mode_cpu()
-
 def CrossEntropyLoss(yy_true, yy_predict):
     num=0
     loss = 0
@@ -59,8 +57,9 @@ def TrainAccuracyLoss():
     y_true = []  # эталонные значения (labels)
     y_predict_float = []
     runtime_times = []
-    a = 0
-    b = 0
+
+    classifier = caffe.NetSpec()
+
     train_file = open('mactrain.txt','r')
     imagesTrain = train_file.readlines()
     for line in imagesTrain:
@@ -68,19 +67,17 @@ def TrainAccuracyLoss():
         net.blobs['data'].reshape(1,3,64,64)
         image = caffe.io.load_image(imagepath)
         net.blobs['data'].data[...] = transformer.preprocess('data', image)
-        #caffe.set_mode_cpu()
+        caffe.set_mode_cpu()
         start = time.clock()
         output = net.forward()
         stop = time.clock()
-        output_prob = output['prob'][0]
-        #print(output_prob[:3])
+        output_prob = output['prob']
         predict = output_prob.argmax()
-        predict_float = max(output_prob[0][:2])
+        predict_float = max(output_prob[0][:3])
         y_predict.append(predict)
         y_true.append(int(label))
         y_predict_float.append(predict_float)
         runtime_times.append(stop - start)
-    print(a,b)
     print "Train Accuracy = ",accuracy_score(y_true,y_predict)
     print "Train Loss = ",zero_one_loss(y_true,y_predict)
     print "Train Loss Cross Entropy = ", CrossEntropyLoss(y_true, y_predict_float)
@@ -95,17 +92,16 @@ def ValAccuracyLoss():
     imagesTrain = train_file.readlines()
     for line in imagesTrain:
         imagepath,label = line.strip('\n').split(' ')
-        #net.blobs['data'].reshape(1, 3, 64, 64)
-        image = caffe.io.load_image(imagepath)
+        net.blobs['data'].reshape(1, 3, 64, 64)
+        image = caffe.io.load_image(imagepath, color=False)
         net.blobs['data'].data[...] = transformer.preprocess('data', image)
+        caffe.set_mode_cpu()
         start = time.clock()
         output = net.forward()
         stop = time.clock()
         output_prob = output['prob']
-        #print net.blobs['score']
-        print(output_prob[0][0][0])
         predict = output_prob.argmax()
-        predict_float = max(output_prob[0][:2])
+        predict_float = max(output_prob[0][:3])
         y_predict.append(predict)
         y_true.append(int(label))
         y_predict_float.append(predict_float)
@@ -115,11 +111,15 @@ def ValAccuracyLoss():
     print "Val Loss Cross Entropy = ", CrossEntropyLoss(y_true, y_predict_float)
 
 def TestAccuracyLossPrecisionRecall():
+    imagesTest = os.getenv("TestDataSetDIR")
+    imagesTest = "/Users/sergeytyurin/Desktop/Datasets/Classification_Images_1"
+
+    classes = []  # матрица ошибок (TP, FP, TN, FN)
     y_predict = []  # предсказанные значения
     y_predict_float = []
     y_true = []  # эталонные значения (labels)
     runtime_times = []
-    classes = []
+
     for root,dirs,files in os.walk(imagesTest):
         for d in dirs:
             classes.append([int(d),0,0]) # Формируем пустые столбцы матрицы ошибок
@@ -134,7 +134,7 @@ def TestAccuracyLossPrecisionRecall():
                 stop = time.clock()
                 output_prob = output['prob']
                 predict = output_prob.argmax()
-                predict_float = max(output_prob[0][:2])
+                predict_float = max(output_prob[0][:3])
                 label = int(root[-1])-1
                 # classes[label][predict+1]+=1
                 y_predict.append(predict)
@@ -150,11 +150,10 @@ def TestAccuracyLossPrecisionRecall():
     recall = np.append(recall,np.mean(recall))
     f1_score = np.append(f1_score,np.mean(f1_score))
     support = np.append(support,np.sum(support))
-
     report = classification_report(y_true,y_predict)
 
-    #print report
-    # print "Avg Time = ",np.mean(runtime_times)
+    print report
+    print "Avg Time = ",np.mean(runtime_times)
 
     print "Test Accuracy = ", accuracy_score(y_true, y_predict)
     print "Test Loss = ", zero_one_loss(y_true, y_predict)
