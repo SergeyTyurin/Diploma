@@ -1,5 +1,6 @@
+name: "LeNet"
 layer {
-  name: "data"
+  name: "mnist"
   type: "Data"
   top: "data"
   top: "label"
@@ -7,16 +8,16 @@ layer {
     phase: TRAIN
   }
   transform_param {
-    scale: 0.00392156862745
+    scale: 0.00390625
   }
   data_param {
-    source: "/home/styurin/DataSet/64/train_db"
-    batch_size: 32
+    source: "/home/styurin/DataSet/28/train_db"
+    batch_size: 64
     backend: LMDB
   }
 }
 layer {
-  name: "data"
+  name: "mnist"
   type: "Data"
   top: "data"
   top: "label"
@@ -24,11 +25,11 @@ layer {
     phase: TEST
   }
   transform_param {
-    scale: 0.00392156862745
+    scale: 0.00390625
   }
   data_param {
-    source: "/home/styurin/DataSet/64/val_db"
-    batch_size: 64
+    source: "/home/styurin/DataSet/28/val_db"
+    batch_size: 100
     backend: LMDB
   }
 }
@@ -37,24 +38,28 @@ layer {
   type: "Convolution"
   bottom: "data"
   top: "conv1"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
   convolution_param {
     num_output: 20
-    kernel_size: 2
+    kernel_size: 5
+    stride: 1
     weight_filler {
       type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
     }
   }
 }
 layer {
-  name: "sigmoid1"
-  bottom: "conv1"
-  top: "sigmoid1"
-  type: "Sigmoid"
-}
-layer {
   name: "pool1"
   type: "Pooling"
-  bottom: "sigmoid1"
+  bottom: "conv1"
   top: "pool1"
   pooling_param {
     pool: MAX
@@ -67,24 +72,28 @@ layer {
   type: "Convolution"
   bottom: "pool1"
   top: "conv2"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
   convolution_param {
-    num_output: 40
-    kernel_size: 4
+    num_output: 50
+    kernel_size: 5
+    stride: 1
     weight_filler {
       type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
     }
   }
 }
 layer {
-  name: "sigmoid2"
-  bottom: "conv2"
-  top: "sigmoid2"
-  type: "Sigmoid"
-}
-layer {
   name: "pool2"
   type: "Pooling"
-  bottom: "sigmoid2"
+  bottom: "conv2"
   top: "pool2"
   pooling_param {
     pool: MAX
@@ -93,33 +102,57 @@ layer {
   }
 }
 layer {
-  name: "fc1"
+  name: "ip1"
   type: "InnerProduct"
   bottom: "pool2"
-  top: "fc1"
+  top: "ip1"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
   inner_product_param {
     num_output: 500
     weight_filler {
       type: "xavier"
     }
+    bias_filler {
+      type: "constant"
+    }
   }
 }
 layer {
-  name: "score"
+  name: "relu1"
+  type: "ReLU"
+  bottom: "ip1"
+  top: "ip1"
+}
+layer {
+  name: "ip2"
   type: "InnerProduct"
-  bottom: "fc1"
-  top: "score"
+  bottom: "ip1"
+  top: "ip2"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
   inner_product_param {
-    num_output: 3
+    num_output: 10
     weight_filler {
       type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
     }
   }
 }
 layer {
   name: "accuracy"
   type: "Accuracy"
-  bottom: "score"
+  bottom: "ip2"
   bottom: "label"
   top: "accuracy"
   include {
@@ -129,7 +162,7 @@ layer {
 layer {
   name: "loss"
   type: "SoftmaxWithLoss"
-  bottom: "score"
+  bottom: "ip2"
   bottom: "label"
   top: "loss"
 }

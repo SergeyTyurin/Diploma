@@ -46,15 +46,9 @@ layer {
   }
 }
 layer {
-  name: "sigmoid1"
-  bottom: "conv1"
-  top: "sigmoid1"
-  type: "Sigmoid"
-}
-layer {
   name: "pool1"
   type: "Pooling"
-  bottom: "sigmoid1"
+  bottom: "conv1"
   top: "pool1"
   pooling_param {
     pool: MAX
@@ -76,15 +70,15 @@ layer {
   }
 }
 layer {
-  name: "sigmoid2"
+  name: "relu2"
+  type: "ReLU"
   bottom: "conv2"
-  top: "sigmoid2"
-  type: "Sigmoid"
+  top: "conv2"
 }
 layer {
   name: "pool2"
   type: "Pooling"
-  bottom: "sigmoid2"
+  bottom: "conv2"
   top: "pool2"
   pooling_param {
     pool: MAX
@@ -105,6 +99,12 @@ layer {
   }
 }
 layer {
+  name: "relu3"
+  type: "ReLU"
+  bottom: "fc1"
+  top: "fc1"
+}
+layer {
   name: "score"
   type: "InnerProduct"
   bottom: "fc1"
@@ -122,14 +122,15 @@ layer {
   bottom: "score"
   bottom: "label"
   top: "accuracy"
-  include {
-    phase: TEST
-  }
 }
+
 layer {
-  name: "loss"
-  type: "SoftmaxWithLoss"
-  bottom: "score"
+  bottom: "topOfPrevLayer"
   bottom: "label"
-  top: "loss"
+  top: "infoGainLoss"
+  name: "infoGainLoss"
+  type: "InfogainLoss"
+  infogain_loss_param {
+    source: "infogainH.binaryproto"
+  }
 }

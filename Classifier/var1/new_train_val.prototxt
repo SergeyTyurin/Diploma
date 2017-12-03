@@ -3,31 +3,11 @@ layer {
   type: "Data"
   top: "data"
   top: "label"
-  include {
-    phase: TRAIN
-  }
   transform_param {
     scale: 0.00392156862745
   }
   data_param {
-    source: "/home/styurin/DataSet/64/train_db"
-    batch_size: 32
-    backend: LMDB
-  }
-}
-layer {
-  name: "data"
-  type: "Data"
-  top: "data"
-  top: "label"
-  include {
-    phase: TEST
-  }
-  transform_param {
-    scale: 0.00392156862745
-  }
-  data_param {
-    source: "/home/styurin/DataSet/64/val_db"
+    source: "mnist/mnist_train_lmdb"
     batch_size: 64
     backend: LMDB
   }
@@ -39,22 +19,16 @@ layer {
   top: "conv1"
   convolution_param {
     num_output: 20
-    kernel_size: 2
+    kernel_size: 5
     weight_filler {
       type: "xavier"
     }
   }
 }
 layer {
-  name: "sigmoid1"
-  bottom: "conv1"
-  top: "sigmoid1"
-  type: "Sigmoid"
-}
-layer {
   name: "pool1"
   type: "Pooling"
-  bottom: "sigmoid1"
+  bottom: "conv1"
   top: "pool1"
   pooling_param {
     pool: MAX
@@ -68,23 +42,17 @@ layer {
   bottom: "pool1"
   top: "conv2"
   convolution_param {
-    num_output: 40
-    kernel_size: 4
+    num_output: 50
+    kernel_size: 5
     weight_filler {
       type: "xavier"
     }
   }
 }
 layer {
-  name: "sigmoid2"
-  bottom: "conv2"
-  top: "sigmoid2"
-  type: "Sigmoid"
-}
-layer {
   name: "pool2"
   type: "Pooling"
-  bottom: "sigmoid2"
+  bottom: "conv2"
   top: "pool2"
   pooling_param {
     pool: MAX
@@ -105,25 +73,21 @@ layer {
   }
 }
 layer {
+  name: "relu1"
+  type: "ReLU"
+  bottom: "fc1"
+  top: "fc1"
+}
+layer {
   name: "score"
   type: "InnerProduct"
   bottom: "fc1"
   top: "score"
   inner_product_param {
-    num_output: 3
+    num_output: 10
     weight_filler {
       type: "xavier"
     }
-  }
-}
-layer {
-  name: "accuracy"
-  type: "Accuracy"
-  bottom: "score"
-  bottom: "label"
-  top: "accuracy"
-  include {
-    phase: TEST
   }
 }
 layer {
