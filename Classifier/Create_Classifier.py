@@ -3,6 +3,7 @@ from caffe import layers as L, params as P
 from caffe.proto import caffe_pb2
 import caffe
 import os
+import numpy as np
 
 # Шаблон создания prototxt
 # Не учитывает путь к lmdb и фазы входного слоя
@@ -96,7 +97,16 @@ def create_solver(dir):
 
     with open(os.path.join(dir,'solver.prototxt'), 'w') as f:
         f.write(str(s))
-
+def create_infogain_loss():
+    L = 3 #число классов модели
+    H = np.eye(L, dtype = 'f4')
+    H[0,0] = 0.76
+    H[1,1] = 0.76
+    H[2,2] = 2.62
+    blob = caffe.io.array_to_blobproto(H.reshape((1,1,L,L)))
+    print(blob)
+    with open('var1/infogain_H.binaryproto', 'wb') as f:
+        f.write(blob.SerializeToString())
 def main():
     current_dir = os.path.dirname(__file__)
     lmdb_dir = 'file_path'
@@ -105,8 +115,7 @@ def main():
     with open(os.path.join(current_dir,'train_val1.prototxt'),'w') as f:
         f.write(proto)
 
-    # create_solver(current_dir)
-
 
 if __name__=="__main__":
-    main()
+    #main()
+    create_infogain_loss()

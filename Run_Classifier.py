@@ -9,15 +9,21 @@ import time
 import math
 
 filePath = os.path.dirname(__file__)
-deploy_proto = os.path.join(filePath,"var1","deploy.prototxt")
-weights = os.path.join(filePath,"var1","snapshots","styurin_googlenet_iter_10000.caffemodel")
+path_to_model = os.path.join(filePath,"Classifier")
+deploy_proto = os.path.join(path_to_model,"var1","deploy.prototxt")
+weights = os.path.join(path_to_model,"var1","snapshots","classifier_iter_8000.caffemodel")
+
 net = caffe.Net(deploy_proto, weights,caffe.TEST)
 
 transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
 transformer.set_transpose('data', (2,0,1))  # move image channels to outermost dimension
-# transformer.set_raw_scale('data', 255)      # rescale from [0, 1] to [0, 255]
+#transformer.set_raw_scale('data', 255)      # rescale from [0, 1] to [0, 255]
 
-imagesTest = os.getenv("TestDataSetDIR")
+imagesTest = os.path.join(path_to_model,"mactest.txt")
+imagesTrain = os.path.join(path_to_model,"mactrain.txt")
+imagesVal = os.path.join(path_to_model,"macval.txt")
+
+caffe.set_mode_cpu()
 
 def CrossEntropyLoss(yy_true, yy_predict):
     num=0
@@ -53,20 +59,18 @@ def classifaction_report_csv(report):
     dataframe = pd.DataFrame.from_dict(report_data)
     dataframe.to_csv(os.path.join(filePath,'var1','classification_report.csv'), index = False)
 
-def TrainAccuracyLoss():
+def ForwardNet(path_to_images, color=True):
     y_predict = []  # предсказанные значения
     y_true = []  # эталонные значения (labels)
     y_predict_float = []
     runtime_times = []
+    file = open(path_to_images, 'r')
+    images = file.readlines()
 
-    train_file = open('mactrain.txt','r')
-    imagesTrain = train_file.readlines()
-    for line in imagesTrain:
-        imagepath,label = line.strip('\n').split(' ')
-        net.blobs['data'].reshape(1,3,224,224)
-        image = caffe.io.load_image(imagepath)
+    for line in images:
+        imagepath, label = line.strip('\n').split(' ')
+        image = caffe.io.load_image(imagepath, color=color)
         net.blobs['data'].data[...] = transformer.preprocess('data', image)
-        caffe.set_mode_cpu()
         start = time.clock()
         output = net.forward()
         stop = time.clock()
@@ -77,86 +81,54 @@ def TrainAccuracyLoss():
         y_true.append(int(label))
         y_predict_float.append(predict_float)
         runtime_times.append(stop - start)
+    return y_true,y_predict,y_predict_float,runtime_times
+
+
+def TrainAccuracyLoss():
+    imagesTrain = os.path.join(path_to_model, "mactrain.txt")
+    y_true, \
+    y_predict, \
+    y_predict_float, \
+    runtime_times = ForwardNet(imagesTrain,False)
+    report = classification_report(y_true, y_predict)
     print "Train Accuracy = ",accuracy_score(y_true,y_predict)
     print "Train Loss = ",zero_one_loss(y_true,y_predict)
     print "Train Loss Cross Entropy = ", CrossEntropyLoss(y_true, y_predict_float)
+    print report
 
 def ValAccuracyLoss():
-    y_predict = []  # предсказанные значения
-    y_true = []  # эталонные значения (labels)
-    y_predict_float = []
-    runtime_times = []
-
-    train_file = open('macval.txt', 'r')
-    imagesTrain = train_file.readlines()
-    for line in imagesTrain:
-        imagepath,label = line.strip('\n').split(' ')
-        net.blobs['data'].reshape(1, 3, 224, 224)
-        image = caffe.io.load_image(imagepath, color=False)
-        net.blobs['data'].data[...] = transformer.preprocess('data', image)
-        caffe.set_mode_cpu()
-        start = time.clock()
-        output = net.forward()
-        stop = time.clock()
-        output_prob = output['prob']
-        predict = output_prob.argmax()
-        predict_float = max(output_prob[0][:3])
-        y_predict.append(predict)
-        y_true.append(int(label))
-        y_predict_float.append(predict_float)
-        runtime_times.append(stop - start)
+    imagesVal = os.path.join(path_to_model, "macval.txt")
+    y_true, \
+    y_predict, \
+    y_predict_float, \
+    runtime_times = ForwardNet(imagesVal,False)
+    report = classification_report(y_true, y_predict)
     print "Val Accuracy = ", accuracy_score(y_true, y_predict)
     print "Val Loss = ", zero_one_loss(y_true, y_predict)
     print "Val Loss Cross Entropy = ", CrossEntropyLoss(y_true, y_predict_float)
+    print report
 
 def TestAccuracyLossPrecisionRecall():
-    imagesTest = os.getenv("TestDataSetDIR")
-    imagesTest = "/Users/sergeytyurin/Desktop/Datasets/Classification_Images_1"
-    classes = []  # матрица ошибок (TP, FP, TN, FN)
-    y_predict = []  # предсказанные значения
-    y_predict_float = []
-    y_true = []  # эталонные значения (labels)
-    runtime_times = []
+    imagesTest = os.path.join(path_to_model, "mactest.txt")
+    y_true,\
+    y_predict,\
+    y_predict_float,\
+    runtime_times = ForwardNet(imagesTest, False)
 
-    for root,dirs,files in os.walk(imagesTest):
-        for d in dirs:
-            classes.append([int(d),0,0]) # Формируем пустые столбцы матрицы ошибок
-        for file in files:
-            if(file.split('.')[1]=='png'):
-                net.blobs['data'].reshape(1, 3, 224, 224)
-                image = caffe.io.load_image(os.path.join(root,file))
-                net.blobs['data'].data[...] = transformer.preprocess('data',image)
-                caffe.set_mode_cpu()
-                start = time.clock()
-                output = net.forward()
-                stop = time.clock()
-                output_prob = output['prob']
-                predict = output_prob.argmax()
-                predict_float = max(output_prob[0][:3])
-                label = int(root[-1])-1
-                # classes[label][predict+1]+=1
-                y_predict.append(predict)
-                y_predict_float.append(predict_float)
-                y_true.append(label)
-                runtime_times.append(stop-start)
-
-# print classes
-
+    # print classes
     precision,recall,f1_score,support = precision_recall_fscore_support(y_true,y_predict)
 
     precision = np.append(precision,np.mean(precision))
     recall = np.append(recall,np.mean(recall))
     f1_score = np.append(f1_score,np.mean(f1_score))
     support = np.append(support,np.sum(support))
-
     report = classification_report(y_true,y_predict)
-
-    print report
     print "Avg Time = ",np.mean(runtime_times)
-
     print "Test Accuracy = ", accuracy_score(y_true, y_predict)
     print "Test Loss = ", zero_one_loss(y_true, y_predict)
     print "Test Loss Cross Entropy = ", CrossEntropyLoss(y_true, y_predict_float)
+
+    print report
     #classifaction_report_csv(report)
 
 

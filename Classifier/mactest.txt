@@ -10,7 +10,7 @@
 /Users/sergeytyurin/Desktop/Datasets/Classification_Images_1/1/854.png 0
 /Users/sergeytyurin/Desktop/Datasets/Classification_Images_1/1/688.png 0
 /Users/sergeytyurin/Desktop/Datasets/Classification_Images_1/1/221.png 0
-/Users/sergeytyurin/Desktop/Datasets/Classification_Images_1/1/._1150.png 0
+/Users/sergeytyurin/Desktop/Datasets/Classification_Images_1/1/1150.png 0
 /Users/sergeytyurin/Desktop/Datasets/Classification_Images_1/1/950.png 0
 /Users/sergeytyurin/Desktop/Datasets/Classification_Images_1/1/736.png 0
 /Users/sergeytyurin/Desktop/Datasets/Classification_Images_1/1/202.png 0
@@ -56,7 +56,7 @@
 /Users/sergeytyurin/Desktop/Datasets/Classification_Images_1/2/1704.png 1
 /Users/sergeytyurin/Desktop/Datasets/Classification_Images_1/2/573.png 1
 /Users/sergeytyurin/Desktop/Datasets/Classification_Images_1/2/1583.png 1
-/Users/sergeytyurin/Desktop/Datasets/Classification_Images_1/2/._2007.png 1
+/Users/sergeytyurin/Desktop/Datasets/Classification_Images_1/2/2007.png 1
 /Users/sergeytyurin/Desktop/Datasets/Classification_Images_1/2/1935.png 1
 /Users/sergeytyurin/Desktop/Datasets/Classification_Images_1/2/1582.png 1
 /Users/sergeytyurin/Desktop/Datasets/Classification_Images_1/2/1311.png 1

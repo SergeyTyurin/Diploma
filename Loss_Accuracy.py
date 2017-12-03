@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import os
 
 file_path = os.path.dirname(__file__)
-
+file_path = os.path.join(file_path,'Classifier')
 fig = plt.figure(figsize=(9,6))
 plt.subplots_adjust(hspace = 0.5)
 
@@ -25,5 +25,5 @@ val_pd = pd.read_csv(os.path.join(file_path,"var1","data","val","val.csv"),
 
 val_pd.plot(ax=ax2, grid=True)
 
-namefig = "LossAccuracy_googleNet.png"
+namefig = "LossAccuracy_leNet.png"
 plt.savefig(os.path.join(file_path,"var1",namefig))
