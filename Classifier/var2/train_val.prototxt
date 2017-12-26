@@ -10,8 +10,8 @@ layer {
     scale: 0.00392156862745
   }
   data_param {
-    source: "/Users/vladislavtyurin/Diploma/DataSet/lmdb/256_gray/val_db"
-    batch_size: 32
+    source: "/home/vtyurin/Diploma/lmdb/256_gray/train_db"
+    batch_size: 80
     backend: LMDB
   }
 }
@@ -25,10 +25,11 @@ layer {
   }
   transform_param {
     scale: 0.00392156862745
+    #crop_size: 256
   }
   data_param {
-    source: "/Users/vladislavtyurin/Diploma/DataSet/lmdb/256_gray/train_db"
-    batch_size: 64
+    source: "/home/vtyurin/Diploma/lmdb/256_gray/val_db"
+    batch_size: 100
     backend: LMDB
   }
 }
@@ -110,21 +111,19 @@ layer {
   bottom: "fc1"
   top: "score"
   inner_product_param {
-    num_output: 3
+    num_output: 2
     weight_filler {
       type: "xavier"
     }
   }
 }
+                  
 layer {
   name: "accuracy"
   type: "Accuracy"
   bottom: "score"
   bottom: "label"
   top: "accuracy"
-  include {
-    phase: TEST
-  }
 }
 layer {
   name: "loss"

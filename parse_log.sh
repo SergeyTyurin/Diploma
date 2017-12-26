@@ -40,19 +40,23 @@ TRAIN="$1/$2/data/train"
 VAL="$1/$2/data/val"
 
 grep "^.*Iteration.*loss =.*$" $1/$2/$3 | grep -o "Iteration [0-9]*" | grep -o [0-9][0-9]* > $TRAIN/Train_iterations.txt
-grep "^.*Iteration.*loss =.*$" $1/$2/$3 | grep -o "loss = [0-9]*\.[0-9]*.*" | grep -o "[0-9]*\.[0-9]*.*" > $TRAIN/Train_loss.txt
+grep "^.*Train.*accuracy =.*$" $1/$2/$3 | grep -o "accuracy = [0-9]*.*$" | grep -o "[0-9]*[.]*[0-9]*$" > $TRAIN/Train_accuracy.txt
+grep "^.*Train.*loss =.*$" $1/$2/$3 | grep -o "loss = [0-9]*\.[0-9]*.*" | grep -o "[0-9]*\.[0-9]*" > $TRAIN/Train_loss.txt
 grep "Test" $1/$2/$3 | grep -o "Iteration \d*" | grep -o "\d\d*" > $VAL/Val_iterations.txt
-grep "Test" $1/$2/$3 | grep -o "loss = [0-9]\.[0-9]*.*" | grep -o "[0-9]\.[0-9]*.*" > $VAL/Val_loss.txt
-grep "Test" $1/$2/$3 | grep -o "accuracy = [0-9]\.[0-9]*.*" | grep -o "[0-9]\.[0-9]*.*" > $VAL/Val_acc.txt
+grep "Test" $1/$2/$3 | grep -o "loss = [0-9]\.[0-9]*.*" | grep -o "[0-9]\.[0-9]*" > $VAL/Val_loss.txt
+grep "Test" $1/$2/$3 | grep -o "accuracy = [0-9]\.[0-9]*.*" | grep -o "[0-9]\.[0-9]*" > $VAL/Val_acc.txt
 
 ~/Diploma/env/bin/python Create_CSV.py --train_csv_file $TRAIN/train.csv\
                                        --val_csv_file $VAL/val.csv\
                                        --train_iterations_file $TRAIN/Train_iterations.txt\
+                                       --train_accuracy_file $TRAIN/Train_accuracy.txt\
                                        --train_loss_file $TRAIN/Train_loss.txt\
                                        --val_iterations_file $VAL/Val_iterations.txt\
                                        --val_accuracy_file $VAL/Val_acc.txt\
+                                       --val_loss_file $VAL/Val_loss.txt\
 
 rm $TRAIN/Train_iterations.txt
+rm $TRAIN/Train_accuracy.txt
 rm $TRAIN/Train_loss.txt
 rm $VAL/Val_iterations.txt
 rm $VAL/Val_loss.txt

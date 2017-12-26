@@ -10,8 +10,8 @@ layer {
     scale: 0.00392156862745
   }
   data_param {
-    source: "/Users/vladislavtyurin/Diploma/DataSet/lmdb/64/val_db"
-    batch_size: 32
+    source: "/home/vtyurin/Diploma/lmdb/256_gray/train_db"
+    batch_size: 16
     backend: LMDB
   }
 }
@@ -25,10 +25,11 @@ layer {
   }
   transform_param {
     scale: 0.00392156862745
+    #crop_size: 256
   }
   data_param {
-    source: "/Users/vladislavtyurin/Diploma/DataSet/lmdb/64/train_db"
-    batch_size: 64
+    source: "/home/vtyurin/Diploma/lmdb/256_gray/val_db"
+    batch_size: 32
     backend: LMDB
   }
 }
@@ -46,15 +47,9 @@ layer {
   }
 }
 layer {
-  name: "sigmoid1"
-  type: "Sigmoid"
-  bottom: "conv1"
-  top: "sigmoid1"
-}
-layer {
   name: "pool1"
   type: "Pooling"
-  bottom: "sigmoid1"
+  bottom: "conv1"
   top: "pool1"
   pooling_param {
     pool: MAX
@@ -76,15 +71,15 @@ layer {
   }
 }
 layer {
-  name: "sigmoid2"
-  type: "Sigmoid"
+  name: "relu2"
+  type: "ReLU"
   bottom: "conv2"
-  top: "sigmoid2"
+  top: "conv2"
 }
 layer {
   name: "pool2"
   type: "Pooling"
-  bottom: "sigmoid2"
+  bottom: "conv2"
   top: "pool2"
   pooling_param {
     pool: MAX
@@ -105,26 +100,30 @@ layer {
   }
 }
 layer {
+  name: "relu3"
+  type: "ReLU"
+  bottom: "fc1"
+  top: "fc1"
+}
+layer {
   name: "score"
   type: "InnerProduct"
   bottom: "fc1"
   top: "score"
   inner_product_param {
-    num_output: 3
+    num_output: 2
     weight_filler {
       type: "xavier"
     }
   }
 }
+                  
 layer {
   name: "accuracy"
   type: "Accuracy"
   bottom: "score"
   bottom: "label"
   top: "accuracy"
-  include {
-    phase: TEST
-  }
 }
 layer {
   name: "loss"

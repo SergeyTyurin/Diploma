@@ -3,7 +3,6 @@ from caffe import layers as L, params as P
 from caffe.proto import caffe_pb2
 import caffe
 import os
-import numpy as np
 
 # Шаблон создания prototxt
 # Не учитывает путь к lmdb и фазы входного слоя
@@ -18,16 +17,13 @@ def create_net(lmdb_dir, batch_size):
                                                ntop = 2) # входной слой
 
     classifier.conv1 = L.Convolution(classifier.data,
-                                     kernel_size = 8,
+                                     kernel_size = 2,
                                      num_output = 20,
                                      weight_filler = dict(type = 'xavier'))
 
-    classifier.relu1 = L.Sigmoid(classifier.conv1,
-                              in_place = True)
-
-    classifier.pool1 = L.Pooling(classifier.relu1,
-                                 kernel_size = 4,
-                                 stride = 4,
+    classifier.pool1 = L.Pooling(classifier.conv1,
+                                 kernel_size = 2,
+                                 stride = 2,
                                  pool = P.Pooling.MAX)
 
     classifier.conv2 = L.Convolution(classifier.pool1,
@@ -39,24 +35,10 @@ def create_net(lmdb_dir, batch_size):
                               in_place = True)
 
     classifier.pool2 = L.Pooling(classifier.relu2,
-                                 kernel_size = 4,
-                                 stride = 4,
+                                 kernel_size = 2,
+                                 stride = 2,
                                  pool = P.Pooling.MAX)
-
-    classifier.conv3 = L.Convolution(classifier.pool2,
-                                     kernel_size=2,
-                                     num_output=80,
-                                     weight_filler=dict(type='xavier'))
-
-    classifier.relu3 = L.ReLU(classifier.conv3,
-                              in_place=True)
-
-    classifier.pool3 = L.Pooling(classifier.relu3,
-                                 kernel_size=2,
-                                 stride=2,
-                                 pool=P.Pooling.MAX)
-
-    classifier.fc1 = L.InnerProduct(classifier.pool3,
+    classifier.fc1 = L.InnerProduct(classifier.pool2,
                                     num_output = 500,
                                     weight_filler = dict(type = 'xavier'))
 
@@ -97,25 +79,17 @@ def create_solver(dir):
 
     with open(os.path.join(dir,'solver.prototxt'), 'w') as f:
         f.write(str(s))
-def create_infogain_loss():
-    L = 3 #число классов модели
-    H = np.eye(L, dtype = 'f4')
-    H[0,0] = 0.76
-    H[1,1] = 0.76
-    H[2,2] = 2.62
-    blob = caffe.io.array_to_blobproto(H.reshape((1,1,L,L)))
-    print(blob)
-    with open('var1/infogain_H.binaryproto', 'wb') as f:
-        f.write(blob.SerializeToString())
+
 def main():
     current_dir = os.path.dirname(__file__)
     lmdb_dir = 'file_path'
     proto = str(create_net(lmdb_dir, 32))
 
-    with open(os.path.join(current_dir,'train_val1.prototxt'),'w') as f:
-        f.write(proto)
+    # with open(os.path.join(current_dir,'train_val.prototxt'),'w') as f:
+    #     f.write(proto)
+
+    create_solver(current_dir)
 
 
 if __name__=="__main__":
-    #main()
-    create_infogain_loss()
+    main()

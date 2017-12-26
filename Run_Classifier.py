@@ -8,10 +8,13 @@ import pandas as pd
 import time
 import math
 
+modelname='Classifier'
+var='var4'
+
 filePath = os.path.dirname(__file__)
-path_to_model = os.path.join(filePath,"Classifier")
-deploy_proto = os.path.join(path_to_model,"var1","deploy.prototxt")
-weights = os.path.join(path_to_model,"var1","snapshots","classifier_iter_8000.caffemodel")
+path_to_model = os.path.join(filePath,modelname)
+deploy_proto = os.path.join(path_to_model,var,"deploy.prototxt")
+weights = os.path.join(path_to_model,var,"snapshots","classifier_iter_5000.caffemodel")
 
 net = caffe.Net(deploy_proto, weights,caffe.TEST)
 
@@ -57,7 +60,7 @@ def classifaction_report_csv(report):
         report_data.append(row)
     print report_data
     dataframe = pd.DataFrame.from_dict(report_data)
-    dataframe.to_csv(os.path.join(filePath,'var1','classification_report.csv'), index = False)
+    dataframe.to_csv(os.path.join(filePath,var,'classification_report.csv'), index = False)
 
 def ForwardNet(path_to_images, color=True):
     y_predict = []  # предсказанные значения
@@ -133,6 +136,6 @@ def TestAccuracyLossPrecisionRecall():
 
 
 if __name__=='__main__':
-    TrainAccuracyLoss()
-    ValAccuracyLoss()
+    # TrainAccuracyLoss()
+    #ValAccuracyLoss()
     TestAccuracyLossPrecisionRecall()

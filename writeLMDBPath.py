@@ -31,4 +31,4 @@ if __name__=='__main__':
     #
     # args = parser.parse_args()
     path = "/Users/vladislavtyurin/Diploma/DataSet/lmdb"
-    writeCorrectPath("train_val.prototxt", os.path.join(path, "256_gray"))
+    writeCorrectPath("/Users/vladislavtyurin/Diploma/Diploma/Classifier/var1/train_val.prototxt", os.path.join(path, "64"))
